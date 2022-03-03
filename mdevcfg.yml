@@ -1,0 +1,46 @@
+---
+- name: Deploy loopback configuration AS150
+  hosts: as150
+  gather_facts: false
+  connection: local
+
+  vars:
+   cli:
+    username: cisco
+    password: cisco
+    auth_pass: cisco
+
+  tasks:
+    - name: Deploy lo1 interface
+      ios_config:
+        provider: "{{ cli }}"
+        authorize: yes
+        parents: interface lo10
+        lines:
+          - ip address 10.99.99.99 255.255.255.255
+
+      register: print_output
+    -  debug: var=print_output
+
+- name: Deploy loopback configuration AS300
+  hosts: as300
+  gather_facts: false
+  connection: local
+
+  vars:
+   cli:
+    username: cisco
+    password: cisco
+    auth_pass: cisco
+
+  tasks:
+    - name: Deploy lo20 interface
+      ios_config:
+        provider: "{{ cli }}"
+        authorize: yes
+        parents: interface lo10
+        lines:
+          - ip address 20.99.99.99 255.255.255.255
+
+      register: print_output
+    -  debug: var=print_output

@@ -1,0 +1,18 @@
+---
+- name: backup device cfg
+  hosts: all
+  gather_facts: false
+  connection: local
+
+  tasks:
+    - name: show run in priv-exec mode
+      ios_command:
+        authorize: yes
+        commands:
+          - show run
+
+      register: print_output
+    - debug: var=print_output.stdout_lines
+
+    - name: save output to file
+      copy: content="{{ print_output.stdout[0] }}" dest="/root/output/{{ inventory_hostname }}-cfg"

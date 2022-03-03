@@ -1,0 +1,52 @@
+---
+- name: Deploy VLAN configuration
+  hosts: switches
+  gather_facts: false
+  connection: local
+
+  vars:
+   cli:
+    username: cisco
+    password: cisco
+    auth_pass: cisco
+
+  tasks:
+    - name: Create VLANs
+      ios_config:
+        provider: "{{ cli }}"
+        authorize: yes
+        lines:
+          - vlan 2-50
+
+      register: print_output
+    -  debug: var=print_output
+
+- name: Assign Interfaces to VLANs
+  hosts: switches
+  gather_facts: false
+  connection: local
+
+  vars:
+   cli:
+    username: cisco
+    password: cisco
+    auth_pass: cisco
+
+  tasks:
+    - name: Assign VLANs to Interfaces
+      ios_config:
+        provider: "{{ cli }}"
+        parents: "interface {{ item.interface }}"
+        lines:
+          - switchport mode access
+          - "switchport access vlan {{ item.vlan }}"
+        after:
+          - no shut
+      with_items:
+        - { interface: g1/0, vlan: 10 }
+        - { interface: g0/1, vlan: 11 }
+        - { interface: g0/2, vlan: 30 }
+        - { interface: g0/3, vlan: 50 }
+
+      register: print_output
+    -  debug: var=print_output
